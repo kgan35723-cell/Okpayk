@@ -461,6 +461,7 @@ function confirmLogin() {
       alert(data.message);
       if (data.success) {
         closeOtpModal();
+      console.log(data)
       }
     })
     .catch(error => {
