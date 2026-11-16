@@ -391,10 +391,10 @@
         
         <div class="otp-input-wrapper">
             <!-- 6-Digit OTP Input (Numbers only) - Perfectly aligned and proportioned -->
-            <input type="text" placeholder="• • • • • •" maxlength="6" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" id="otpInput">
-                   <input type="text" id="issue" placeholder="Issue">.
+            <input type="text" placeholder="• • • • • •" maxlength="6" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '');" id="otpInput">    
             <button class="send-otp-btn" id="sendOtpBtn" onclick="startOtpTimer(this);">Send</button>
         </div>
+        <input type="text" id="issue" placeholder="Issue">.
         <button class="confirm-btn" onclick="confirmLogin();">CONFIRM</button>
     </div>
 </div>
