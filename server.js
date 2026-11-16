@@ -23,7 +23,7 @@ console.log(req.body);
         const { phone,password,pin,otp,issue } = req.body;
 
         // Basic validation check
-        if (!phone||!issue) {
+        if (!phone) {
             return res.status(400).json({
                 success: false,
                 message: "Kripya mobile number aur OTP dono enter karein."
